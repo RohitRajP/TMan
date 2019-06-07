@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 import './pages/homepage.dart';
+import './pages/settingsPage.dart';
+import './pages/addTaskPage.dart';
 import './globals.dart' as globals;
+import 'package:flutter/services.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatefulWidget{
+class MyApp extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -14,7 +17,40 @@ class MyApp extends StatefulWidget{
   }
 }
 
-class _MyAppState extends State<MyApp>{
+class _MyAppState extends State<MyApp> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getUserData();
+  }
+
+  void refreshApp() {
+    setState(() {});
+  }
+
+  void _getUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool _userBrightness = prefs.getBool('brightness');
+    if (_userBrightness != null) {
+      globals.brightness = _userBrightness;
+
+      setStatusBarColor();
+      refreshApp();
+    }
+  }
+
+  void setStatusBarColor() {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor:
+      (globals.brightness == true) ? globals.light : globals.dark,
+      statusBarIconBrightness:
+      (globals.brightness == true) ? Brightness.dark : Brightness.light,
+      statusBarBrightness:
+      (globals.brightness == true) ? Brightness.dark : Brightness.light,
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +58,18 @@ class _MyAppState extends State<MyApp>{
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "TMan",
-      home: HomePage(),
+      home: HomePage(refreshApp),
       theme: ThemeData(
         fontFamily: 'Ubuntu',
-        primarySwatch: Colors.indigo,
-        brightness: (globals.brightness == true)? Brightness.light: Brightness.dark,
+        primarySwatch: Colors.orange,
+        brightness:
+        (globals.brightness == true) ? Brightness.light : Brightness.dark,
       ),
+      routes: {
+        '/settingsPage': (context) =>
+            SettingsPage(refreshApp, setStatusBarColor),
+        '/addTaskPage': (context) => AddTaskPage()
+      },
     );
   }
 }

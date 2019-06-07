@@ -20,7 +20,8 @@ dependencies:
   flutter:
     sdk: flutter
   font_awesome_flutter:
-  intl:
+  shared_preferences:
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -58,11 +59,14 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-fonts:
-  - family: Ubuntu
-    fonts:
-      - asset: assets/fonts/ubuntu/Ubuntu-Bold.ttf
-        style: medium
+  fonts:
+    - family: Ubuntu
+      fonts:
+        - asset: assets/fonts/ubuntu/Ubuntu-Regular.ttf
+        - asset: assets/fonts/ubuntu/Ubuntu-Light.ttf
+        - asset: assets/fonts/ubuntu/Ubuntu-Medium.ttf
+        - asset: assets/fonts/ubuntu/Ubuntu-Bold.ttf
+
 
 
   #   - family: Trajan Pro

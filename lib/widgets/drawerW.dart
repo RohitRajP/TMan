@@ -13,58 +13,99 @@ class DrawerW extends StatefulWidget {
   }
 }
 
-class _DrawerWState extends State<DrawerW>{
+class _DrawerWState extends State<DrawerW> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Drawer(
-      child: ListView(
+      child: Column(
         // Important: Remove any padding from the ListView.
-        padding: EdgeInsets.zero,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Container(
-            color: (globals.brightness == true)?Colors.transparent:Colors.black,
-            padding: EdgeInsets.only(top:50.0, bottom: 40.0),
+            width: double.infinity,
+            color: (globals.brightness == true)
+                ? Colors.transparent
+                : Colors.black,
+            padding: EdgeInsets.only(top: 50.0, bottom: 40.0),
             child: Chip(
               avatar: CircleAvatar(
+                backgroundColor:
+                (globals.brightness == true) ? globals.light : globals.dark,
+                foregroundColor: (globals.brightness == true)
+                    ? globals.darkText
+                    : globals.lightText,
                 radius: 50.0,
-                child: Text('Hi', style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),),
+                child: Text(
+                  'Hi',
+                  style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+                ),
               ),
-              label: Text(globals.quirkyName, style: TextStyle(fontSize: 40.0, ),),
+              label: Text(
+                globals.quirkyName,
+                style: TextStyle(
+                  fontSize: 40.0,
+                ),
+              ),
             ),
           ),
           Container(
-            color: (globals.brightness == true)?Colors.transparent:Colors.black,
-            padding: EdgeInsets.only(left:15.0),
-            child: Text(globals.greetingText, style: TextStyle(
-                letterSpacing: 0.9,
-                color: (globals.brightness == true)?globals.darkText:globals.lightText,
-                fontSize: 25.0,
-                fontWeight: FontWeight.bold
-            ),),
+            width: double.infinity,
+            alignment: Alignment.center,
+            color: (globals.brightness == true)
+                ? Colors.transparent
+                : Colors.black,
+            child: Text(
+              globals.greetingText,
+              style: TextStyle(
+                  letterSpacing: 0.9,
+                  color: (globals.brightness == true)
+                      ? globals.darkText
+                      : globals.lightText,
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.bold),
+            ),
           ),
           Container(
-            color: (globals.brightness == true)?Colors.transparent:Colors.black,
-            padding: EdgeInsets.only(left:15.0),
-            child: Text("Today: "+
-                globals.now.day.toString()+"/"+globals.now.month.toString()+"/"+globals.now.year.toString(), style: TextStyle(
-                letterSpacing: 1.0,
-                color: (globals.brightness == true)?globals.darkText:globals.lightText,
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold
-            ),),
+            width: double.infinity,
+            alignment: Alignment.center,
+            color: (globals.brightness == true)
+                ? Colors.transparent
+                : Colors.black,
+            child: Text(
+              "Today: " +
+                  globals.now.day.toString() +
+                  "/" +
+                  globals.now.month.toString() +
+                  "/" +
+                  globals.now.year.toString(),
+              style: TextStyle(
+                  letterSpacing: 1.0,
+                  color: (globals.brightness == true)
+                      ? globals.darkText
+                      : globals.lightText,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold),
+            ),
           ),
           Container(
-            color: (globals.brightness == true)?Colors.transparent:Colors.black,
-            padding: EdgeInsets.only(left: 15.0, top:2.0, bottom: 15.0),
+            width: double.infinity,
+            alignment: Alignment.center,
+            color: (globals.brightness == true)
+                ? Colors.transparent
+                : Colors.black,
+            padding: EdgeInsets.only(top: 2.0, bottom: 15.0),
             child: Text("Your own digital secretary",
                 style: TextStyle(
-                    color: (globals.brightness == true)?Colors.black54:Colors.grey,
-                    fontSize: 16.0
-                )),
+                    color: (globals.brightness == true)
+                        ? Colors.black54
+                        : Colors.grey,
+                    fontSize: 16.0)),
           ),
           Container(
-            child: (widget.menu == 1)?null:ListTile(
+            child: (widget.menu == 1)
+                ? null
+                : ListTile(
               leading: Icon(FontAwesomeIcons.userAstronaut),
               subtitle: Text("Quirky details about you"),
               title: Text('About You'),
@@ -75,18 +116,21 @@ class _DrawerWState extends State<DrawerW>{
             ),
           ),
           Container(
-            child: (widget.menu == 2)?null: ListTile(
+            child: (widget.menu == 2)
+                ? null
+                : ListTile(
               leading: Icon(FontAwesomeIcons.cogs),
               subtitle: Text("App settings and preferences"),
               title: Text('Settings'),
               onTap: () {
-                // Update the state of the app
-                // ...
+                Navigator.pushNamed(context, '/settingsPage');
               },
             ),
           ),
           Container(
-            child: (widget.menu == 3)?null:ListTile(
+            child: (widget.menu == 3)
+                ? null
+                : ListTile(
               leading: Icon(FontAwesomeIcons.users),
               subtitle: Text("App and developer details"),
               title: Text('About Us'),
@@ -97,7 +141,9 @@ class _DrawerWState extends State<DrawerW>{
             ),
           ),
           Container(
-            child: (widget.menu == 4)?null:ListTile(
+            child: (widget.menu == 4)
+                ? null
+                : ListTile(
               leading: Icon(FontAwesomeIcons.doorOpen),
               subtitle: Text("Close application"),
               title: Text('Exit'),
