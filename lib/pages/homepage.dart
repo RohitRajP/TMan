@@ -36,8 +36,6 @@ class _HomePageState extends State<HomePage> {
         : (hour >= 20 && hour <= 23)
         ? globals.greetingText = "Sweet dreams"
         : globals.greetingText = "Have a good day!";
-    //setStatusBarColor();
-
   }
 
   @override

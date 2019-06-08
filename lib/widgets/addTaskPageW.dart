@@ -16,15 +16,6 @@ List<String> _monthArr = [
   "Dec"
 ];
 
-Widget taskTitleField() {
-  return TextField(
-    decoration: InputDecoration(
-        labelText: 'What are you planning?',
-        labelStyle: TextStyle(color: Colors.grey)),
-    style: TextStyle(fontSize: 25.0),
-    maxLines: 3,
-  );
-}
 
 Widget notificationIcon() {
   return Icon(
@@ -37,14 +28,6 @@ String getMonth(int month) {
   return _monthArr[--month];
 }
 
-Widget notesField() {
-  return Flexible(
-    child: new TextField(
-      style: TextStyle(fontSize: 20),
-      decoration: const InputDecoration.collapsed(hintText: "Add note"),
-    ),
-  );
-}
 
 Widget notesIcon() {
   return Icon(

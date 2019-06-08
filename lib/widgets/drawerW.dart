@@ -18,6 +18,7 @@ class _DrawerWState extends State<DrawerW> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Drawer(
+      elevation: 10,
       child: Column(
         // Important: Remove any padding from the ListView.
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -25,15 +26,16 @@ class _DrawerWState extends State<DrawerW> {
           Container(
             width: double.infinity,
             color: (globals.brightness == true)
-                ? Colors.transparent
+                ? globals.light
                 : Colors.black,
             padding: EdgeInsets.only(top: 50.0, bottom: 40.0),
             child: Chip(
               avatar: CircleAvatar(
                 backgroundColor:
-                (globals.brightness == true) ? globals.light : globals.dark,
+                (globals.brightness == true) ? globals.themeColor : globals
+                    .dark,
                 foregroundColor: (globals.brightness == true)
-                    ? globals.darkText
+                    ? globals.lightText
                     : globals.lightText,
                 radius: 50.0,
                 child: Text(
@@ -53,7 +55,7 @@ class _DrawerWState extends State<DrawerW> {
             width: double.infinity,
             alignment: Alignment.center,
             color: (globals.brightness == true)
-                ? Colors.transparent
+                ? globals.light
                 : Colors.black,
             child: Text(
               globals.greetingText,
@@ -70,7 +72,7 @@ class _DrawerWState extends State<DrawerW> {
             width: double.infinity,
             alignment: Alignment.center,
             color: (globals.brightness == true)
-                ? Colors.transparent
+                ? globals.light
                 : Colors.black,
             child: Text(
               "Today: " +
@@ -92,7 +94,7 @@ class _DrawerWState extends State<DrawerW> {
             width: double.infinity,
             alignment: Alignment.center,
             color: (globals.brightness == true)
-                ? Colors.transparent
+                ? globals.light
                 : Colors.black,
             padding: EdgeInsets.only(top: 2.0, bottom: 15.0),
             child: Text("Your own digital secretary",

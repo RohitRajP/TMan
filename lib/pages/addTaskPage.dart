@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../globals.dart' as globals;
 import '../widgets/addTaskPageW.dart' as homePageW;
+import 'package:tman/databaseHelper.dart';
 
 class AddTaskPage extends StatefulWidget {
   @override
@@ -13,10 +14,63 @@ class AddTaskPage extends StatefulWidget {
 }
 
 class _AddTaskPageState extends State<AddTaskPage> {
+
   int choice = 0;
-  DateTime _nDate = globals.now;
-  TimeOfDay _nTime = TimeOfDay.fromDateTime(globals.now);
+  DateTime _nDate;
+  TimeOfDay _nTime;
   int _repeatChoice = 1;
+  bool _autoValidate = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  String _taskTitle, _taskNote;
+
+  // reference to our single class that manages the database
+  final dbHelper = DatabaseHelper.instance;
+
+  void _insert() async {
+    // false - single day, true - all day
+    bool tFreq = false;
+    if (_taskNote.length == 0) {
+      _taskNote = "No task note added";
+    }
+    if (_repeatChoice == 2)
+      tFreq = true;
+    // row to insert
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnTName: _taskTitle,
+      DatabaseHelper.columnTTime: _nTime.toString(),
+      DatabaseHelper.columnTDate: (tFreq == false) ? _nDate.toString() : "null",
+      DatabaseHelper.columnTNote: _taskNote
+    };
+    try {
+      final id = await dbHelper.insert(row);
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text('Congrats! Task Added'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ));
+    } catch (e) {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text('Apologies! Task already exsists'),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 2),
+      ));
+    }
+  }
+
+  void _query() async {
+    final allRows = await dbHelper.queryAllRows();
+    print('query all rows:');
+    allRows.forEach((row) => print(row));
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _nDate = DateTime.now().add(Duration(hours: 2));
+    _nTime = TimeOfDay.fromDateTime(_nDate);
+  }
 
   Future _selectTime() async {
     TimeOfDay picked = await showTimePicker(
@@ -44,7 +98,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   }
 
   Widget _dateBtn() {
-    return InkWell(
+    return (_repeatChoice == 1) ? InkWell(
       onTap: () {
         _selectDate();
       },
@@ -52,7 +106,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         homePageW.getMonth(_nDate.month) + " " + _nDate.day.toString() + ", ",
         style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
       ),
-    );
+    ) : null;
   }
 
   Widget _timeBtn() {
@@ -78,15 +132,17 @@ class _AddTaskPageState extends State<AddTaskPage> {
           duration: Duration(milliseconds: 200),
           decoration: BoxDecoration(
               color: (_repeatChoice == 1) ? Colors.orange : Colors.transparent,
-              borderRadius: BorderRadius.circular(20.0)),
+              borderRadius: BorderRadius.circular(5.0)),
           child: FlatButton(
+            textColor: (_repeatChoice == 1) ? globals.lightText : globals
+                .darkText,
             onPressed: () {
               setState(() {
                 _repeatChoice = 1;
               });
             },
             child: Text(
-              "Just today",
+              "Single Day",
               style: TextStyle(fontSize: 20.0),
             ),
           ),
@@ -98,12 +154,15 @@ class _AddTaskPageState extends State<AddTaskPage> {
           duration: Duration(milliseconds: 200),
           decoration: BoxDecoration(
               color: (_repeatChoice == 2) ? Colors.orange : Colors.transparent,
-              borderRadius: BorderRadius.circular(20.0)),
+              borderRadius: BorderRadius.circular(5.0)),
           child: FlatButton(
+              textColor: (_repeatChoice == 2) ? globals.lightText : globals
+                  .darkText,
               onPressed: () {
                 setState(() {
                   _repeatChoice = 2;
                 });
+                _query();
               },
               child: Text(
                 "All Days",
@@ -114,27 +173,79 @@ class _AddTaskPageState extends State<AddTaskPage> {
     );
   }
 
+  void _validateInputs() {
+    if (_formKey.currentState.validate()) {
+//    If all data are correct then save data to out variables
+      _formKey.currentState.save();
+      _insert();
+    } else {
+//    If all data are not valid then start auto validation.
+      setState(() {
+        _autoValidate = true;
+      });
+    }
+  }
+
+  Widget _taskTitleField() {
+    return Form(
+      key: _formKey,
+      child: TextFormField(
+        autovalidate: _autoValidate,
+        validator: (String arg) {
+          if (arg.length <= 0)
+            return 'Can\'t create a task without a name right?';
+          else
+            return null;
+        },
+        decoration: InputDecoration(
+            labelText: 'What are you planning?',
+            labelStyle: TextStyle(color: Colors.grey)),
+        style: TextStyle(fontSize: 25.0),
+        onSaved: (String value) {
+          _taskTitle = value;
+        },
+        maxLines: 3,
+        maxLength: 200,
+        maxLengthEnforced: true,
+      ),
+    );
+  }
+
+  Widget _notesField() {
+    return Flexible(
+      child: new TextField(
+        style: TextStyle(fontSize: 20),
+        decoration: const InputDecoration.collapsed(hintText: "Add note"),
+        onChanged: (String value) {
+          _taskNote = value;
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return SafeArea(
       child: Scaffold(
+        key: _scaffoldKey,
         floatingActionButton: FloatingActionButton.extended(
             foregroundColor: (globals.brightness == true)
                 ? globals.lightText
                 : globals.darkText,
             heroTag: 'createTaskFABHero',
             icon: Icon(Icons.add),
-            label: Text("Add"),
+            label: Text("Add Task"),
             backgroundColor: (globals.brightness == true)
                 ? globals.themeColor
                 : Colors.white,
             onPressed: () {
-              _selectDate();
+              _validateInputs();
+              _autoValidate = true;
             }),
         appBar: AppBar(
           backgroundColor:
-              (globals.brightness == true) ? globals.light : globals.dark,
+          (globals.brightness == true) ? globals.light : globals.dark,
           elevation: 0,
           iconTheme: IconThemeData(
             color: (globals.brightness == true)
@@ -169,7 +280,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           child: ListView(
             children: <Widget>[
               Container(
-                child: homePageW.taskTitleField(),
+                child: _taskTitleField(),
               ),
               SizedBox(
                 height: 50.0,
@@ -203,7 +314,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     SizedBox(
                       width: 30.0,
                     ),
-                    Container(child: homePageW.notesField())
+                    Container(child: _notesField())
                   ],
                 ),
               ),
