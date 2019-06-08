@@ -11,3 +11,23 @@ Color dark = Color(0xFF000000),
     themeColor = Colors.orange;
 String quirkyName = "Boss",
     greetingText = "Have a great day!";
+
+// gradient begin colors
+List<Color> gBegin = [
+  Color(0xFFEB3349),
+  Color(0xFF7F00FF),
+  Color(0xFF396afc),
+  Color(0xFF485563),
+  Color(0xFF4776E6),
+  Color(0xFFfc6767)
+];
+
+// gradient end colors
+List<Color> gEnd = [
+  Color(0xFFF45C43),
+  Color(0xFFE100FF),
+  Color(0xFF2948ff),
+  Color(0xFF29323c),
+  Color(0xFF8E54E9),
+  Color(0xFFec008c)
+];

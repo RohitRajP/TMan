@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +19,21 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  static const platform = const MethodChannel('com.tmft.tman');
+
+  Future<String> addTask(String tName, String tNote, String tDate,
+      String tTime) async {
+    String value;
+
+    try {
+      value = await platform.invokeMethod("addTask",
+          {"tName": tName, "tNote": tNote, "tDate": tDate, "tTime": tTime});
+      return value;
+    } catch (e) {
+      print(e);
+      return "Error at Dart addTask()";
+    }
+  }
 
   @override
   void initState() {
@@ -35,7 +51,6 @@ class _MyAppState extends State<MyApp> {
     bool _userBrightness = prefs.getBool('brightness');
     if (_userBrightness != null) {
       globals.brightness = _userBrightness;
-
       setStatusBarColor();
       refreshApp();
     }
@@ -68,7 +83,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/settingsPage': (context) =>
             SettingsPage(refreshApp, setStatusBarColor),
-        '/addTaskPage': (context) => AddTaskPage()
+        '/addTaskPage': (context) => AddTaskPage(addTask)
       },
     );
   }

@@ -6,6 +6,10 @@ import '../widgets/addTaskPageW.dart' as homePageW;
 import 'package:tman/databaseHelper.dart';
 
 class AddTaskPage extends StatefulWidget {
+  Function addTask;
+
+  AddTaskPage(this.addTask);
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -14,10 +18,8 @@ class AddTaskPage extends StatefulWidget {
 }
 
 class _AddTaskPageState extends State<AddTaskPage> {
-
   int choice = 0;
   DateTime _nDate;
-  TimeOfDay _nTime;
   int _repeatChoice = 1;
   bool _autoValidate = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -30,38 +32,37 @@ class _AddTaskPageState extends State<AddTaskPage> {
   void _insert() async {
     // false - single day, true - all day
     bool tFreq = false;
-    if (_taskNote.length == 0) {
+    if (_taskNote == null || _taskNote.length == 0) {
       _taskNote = "No task note added";
     }
-    if (_repeatChoice == 2)
-      tFreq = true;
+    if (_repeatChoice == 2) tFreq = true;
     // row to insert
-    Map<String, dynamic> row = {
-      DatabaseHelper.columnTName: _taskTitle,
-      DatabaseHelper.columnTTime: _nTime.toString(),
-      DatabaseHelper.columnTDate: (tFreq == false) ? _nDate.toString() : "null",
-      DatabaseHelper.columnTNote: _taskNote
-    };
-    try {
-      final id = await dbHelper.insert(row);
+    var _date = (tFreq == false) ? _nDate.toString() : "null";
+    String value = await widget.addTask(
+        _taskTitle, _taskNote, _date, _nDate.toString());
+    print(value);
+    if (value.compareTo("Inserted") == 0) {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text('Congrats! Task Added'),
+        content: Text('Yaay! New task added'),
         backgroundColor: Colors.green,
         duration: Duration(seconds: 2),
       ));
-    } catch (e) {
+    }
+    else if (value.compareTo("Could not insert") == 0) {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text('Apologies! Task already exsists'),
+        backgroundColor: Colors.deepOrange,
+        duration: Duration(seconds: 2),
+      ));
+    }
+    else {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text('Apologies! An error occured during insertion'),
         backgroundColor: Colors.red,
         duration: Duration(seconds: 2),
       ));
     }
-  }
 
-  void _query() async {
-    final allRows = await dbHelper.queryAllRows();
-    print('query all rows:');
-    allRows.forEach((row) => print(row));
   }
 
   @override
@@ -69,7 +70,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
     // TODO: implement initState
     super.initState();
     _nDate = DateTime.now().add(Duration(hours: 2));
-    _nTime = TimeOfDay.fromDateTime(_nDate);
+
   }
 
   Future _selectTime() async {
@@ -77,7 +78,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
         context: context, initialTime: TimeOfDay.fromDateTime(_nDate));
     if (picked != null) {
       setState(() {
-        _nTime = picked;
+        _nDate = new DateTime(
+            _nDate.year, _nDate.month, _nDate.day, picked.hour, picked.minute);
       });
     }
     ;
@@ -98,22 +100,27 @@ class _AddTaskPageState extends State<AddTaskPage> {
   }
 
   Widget _dateBtn() {
-    return (_repeatChoice == 1) ? InkWell(
+    return (_repeatChoice == 1)
+        ? InkWell(
       onTap: () {
         _selectDate();
       },
       child: Text(
-        homePageW.getMonth(_nDate.month) + " " + _nDate.day.toString() + ", ",
+        homePageW.getMonth(_nDate.month) +
+            " " +
+            _nDate.day.toString() +
+            ", ",
         style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
       ),
-    ) : null;
+    )
+        : null;
   }
 
   Widget _timeBtn() {
-    int _hour = (_nTime.hour > 12) ? _nTime.hour - 12 : _nTime.hour;
-    String minute = _nTime.minute.toString();
-    if (_nTime.minute < 10) minute = "0" + minute;
-    String amPm = (_nTime.hour > 12) ? "PM" : "AM";
+    int _hour = (_nDate.hour > 12) ? _nDate.hour - 12 : _nDate.hour;
+    String minute = _nDate.minute.toString();
+    if (_nDate.minute < 10) minute = "0" + minute;
+    String amPm = (_nDate.hour > 12) ? "PM" : "AM";
     return InkWell(
       onTap: () {
         _selectTime();
@@ -134,8 +141,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
               color: (_repeatChoice == 1) ? Colors.orange : Colors.transparent,
               borderRadius: BorderRadius.circular(5.0)),
           child: FlatButton(
-            textColor: (_repeatChoice == 1) ? globals.lightText : globals
-                .darkText,
+            textColor:
+            (_repeatChoice == 1) ? globals.lightText : globals.darkText,
             onPressed: () {
               setState(() {
                 _repeatChoice = 1;
@@ -156,13 +163,12 @@ class _AddTaskPageState extends State<AddTaskPage> {
               color: (_repeatChoice == 2) ? Colors.orange : Colors.transparent,
               borderRadius: BorderRadius.circular(5.0)),
           child: FlatButton(
-              textColor: (_repeatChoice == 2) ? globals.lightText : globals
-                  .darkText,
+              textColor:
+              (_repeatChoice == 2) ? globals.lightText : globals.darkText,
               onPressed: () {
                 setState(() {
                   _repeatChoice = 2;
                 });
-                _query();
               },
               child: Text(
                 "All Days",
